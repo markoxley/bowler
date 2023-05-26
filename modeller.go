@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	sqlTableCreate = `CREATE TABLE IF NOT EXISTS %s (%s);`
-	sqlIndexCreate = "CREATE INDEX %s_%s_Idx on %s(`%s`);"
+	sqlTableCreate = "CREATE TABLE IF NOT EXISTS `%s` (%s);"
+	sqlIndexCreate = "CREATE INDEX `%s_%s_Idx` on %s(`%s`);"
 )
 
 // Modeller defines the common functionality of a Model
@@ -91,7 +91,7 @@ func getDefs(t interface{}, first bool) []field {
 				res = append(res, subf...)
 			}
 		} else {
-			if tg, ok := st.Tag.Lookup("daggertech"); ok {
+			if tg, ok := st.Tag.Lookup("bowler"); ok {
 				nm := st.Name
 				szMj := 0
 				szMn := 0

@@ -3,7 +3,8 @@ package where
 import (
 	"fmt"
 	"strings"
-	"test/utils"
+
+	"github.com/markoxley/bowler/utils"
 )
 
 type clause struct {

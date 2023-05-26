@@ -5,9 +5,9 @@ import (
 	"log"
 	"reflect"
 	"strings"
-	"test/utils"
 	"time"
 
+	"github.com/markoxley/bowler/utils"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -51,10 +51,24 @@ func (m Model) IsDeleted() bool {
 	return m.DeleteDate == nil
 }
 
+// func (m *Model) updateModel(id string, createdate time.Time, updatedate time.Time, deletedate *time.Time) {
+// 	m.ID = &id
+// 	m.CreateDate = createdate
+// 	m.LastUpdate = updatedate
+// 	m.DeleteDate = deletedate
+// }
+
+// getTableNAme returns the name of the table based on the Model specified
 func getTableName(m Modeller) string {
-	return reflect.Indirect(reflect.ValueOf(m).Elem()).Type().Name()
+	if reflect.TypeOf(m).Kind() == reflect.Pointer {
+		return reflect.Indirect(reflect.ValueOf(m).Elem()).Type().Name()
+	}
+	return reflect.ValueOf(m).Type().Name()
+
 }
 
+// tableTest tests for the existence of the specified table
+// If the table does not exist, it is created
 func tableTest(m Modeller) ([]field, string, bool) {
 	sql, required := tableDefinition(m)
 	if required {
@@ -77,7 +91,8 @@ func tableTest(m Modeller) ([]field, string, bool) {
 	return flds, getTableName(m), ok
 }
 
-// Returns a slice of strings with the sql statements and boolean to indicate if the table needs to be created
+// Returns a slice of strings with the sql statements and boolean to
+// indicate if the table needs to be created
 func tableDefinition(m Modeller) ([]string, bool) {
 	sql := make([]string, 0, 3)
 
@@ -95,7 +110,6 @@ func tableDefinition(m Modeller) ([]string, bool) {
 	if len(fs) == 0 {
 		return nil, false
 	}
-	//flds := "id varchar(36) primary key, createDate bigint, lastUpdate bigint, disabled tinyint"
 	flds := ""
 	keys := make([]string, 0, 5)
 	for _, f := range fs {
@@ -121,14 +135,13 @@ func tableDefinition(m Modeller) ([]string, bool) {
 	}
 	sql = append(sql, fmt.Sprintf(sqlTableCreate, n, flds))
 	kn := strings.ReplaceAll(n, ".", "_")
-	// sql = append(sql, fmt.Sprintf(sqlIndexCreate, kn, "createDate", n, "createDate"))
-	// sql = append(sql, fmt.Sprintf(sqlIndexCreate, kn, "lastUpdate", n, "lastUpdate"))
 	for _, k := range keys {
 		sql = append(sql, fmt.Sprintf(sqlIndexCreate, kn, k, n, k))
 	}
 	return sql, true
 }
 
+// insertCommand returns the sql command to insert the current model into the database
 func insertCommand(m Modeller) string {
 	flds, n, ok := tableTest(m)
 	if !ok {
@@ -142,7 +155,6 @@ func insertCommand(m Modeller) string {
 	updateModel(m, fmt.Sprintf("%s", uid), now, now, nil)
 	q := fmt.Sprintf("'%s', '%s', '%s'", uid, dbNow, dbNow)
 	v := reflect.ValueOf(m).Elem()
-	//vt := reflect.TypeOf(m).Elem()
 	for _, f := range flds {
 		if f.name == "ID" || f.name == "CreateDate" || f.name == "LastUpdate" || f.name == "DeleteDate" {
 			continue
@@ -168,6 +180,8 @@ func insertCommand(m Modeller) string {
 	return def
 }
 
+// updateCommand returns the SQL command to update the
+// current model in the database
 func updateCommand(m Modeller) string {
 	flds, n, ok := tableTest(m)
 	if !ok {
@@ -203,6 +217,7 @@ func updateCommand(m Modeller) string {
 	return def
 }
 
+// deleteCommand returns the SQL command to remove the model from the database
 func deleteCommand(m Modeller) string {
 	_, n, ok := tableTest(m)
 	if !ok {
@@ -212,6 +227,7 @@ func deleteCommand(m Modeller) string {
 	return def
 }
 
+// refreshCommand returns the SQL query to refresh the data in the model
 func refreshCommand(m Modeller) string {
 	_, n, ok := tableTest(m)
 	if !ok {
@@ -221,20 +237,7 @@ func refreshCommand(m Modeller) string {
 	return def
 }
 
-func updateModel(m Modeller, id string, createdate time.Time, updatedate time.Time, deletedate *time.Time) {
-	v := reflect.ValueOf(m)
-	createdateValue := reflect.ValueOf(createdate)
-	updatedateValue := reflect.ValueOf(updatedate)
-	deletedateValue := reflect.ValueOf(deletedate)
-	rv := reflect.New(reflect.TypeOf(id))
-	rv.Elem().Set(reflect.ValueOf(id))
-
-	v.Elem().FieldByName("ID").Set(rv)
-	v.Elem().FieldByName("CreateDate").Set(createdateValue)
-	v.Elem().FieldByName("LastUpdate").Set(updatedateValue)
-	v.Elem().FieldByName("DeleteDate").Set(deletedateValue)
-}
-
+// updateLastUpdate updates the LastUpdate field in the model
 func updateLastUpdate(m Modeller, date time.Time) {
 	v := reflect.ValueOf(m)
 	dateValue := reflect.ValueOf(date)
