@@ -24,6 +24,7 @@ type Model struct {
 }
 
 // CreateModel sets the default parameters for the Model
+// @return Model
 func CreateModel() Model {
 	return Model{
 		CreateDate: time.Now(),
@@ -32,33 +33,36 @@ func CreateModel() Model {
 }
 
 // StandingData returns the standing data for when the table is created
+// @receiver m
+// @return []Modeller
 func (m Model) StandingData() []Modeller {
 	return nil
 }
 
 // GetID returns the ID of the model
+// @receiver m
+// @return *string
 func (m Model) GetID() *string {
 	return m.ID
 }
 
 // IsNew returns true if the model has yet to be stored
+// @receiver m
+// @return bool
 func (m Model) IsNew() bool {
 	return m.ID == nil
 }
 
 // IsDeleted returns true if teh model has been marked as deleted
+// @receiver m
+// @return bool
 func (m Model) IsDeleted() bool {
 	return m.DeleteDate == nil
 }
 
-// func (m *Model) updateModel(id string, createdate time.Time, updatedate time.Time, deletedate *time.Time) {
-// 	m.ID = &id
-// 	m.CreateDate = createdate
-// 	m.LastUpdate = updatedate
-// 	m.DeleteDate = deletedate
-// }
-
-// getTableNAme returns the name of the table based on the Model specified
+// getTableName getTableNAme returns the name of the table based on the Model specified
+// @param m
+// @return string
 func getTableName(m Modeller) string {
 	if reflect.TypeOf(m).Kind() == reflect.Pointer {
 		return reflect.Indirect(reflect.ValueOf(m).Elem()).Type().Name()
@@ -69,6 +73,10 @@ func getTableName(m Modeller) string {
 
 // tableTest tests for the existence of the specified table
 // If the table does not exist, it is created
+// @param m
+// @return []field
+// @return string
+// @return bool
 func tableTest(m Modeller) ([]field, string, bool) {
 	sql, required := tableDefinition(m)
 	if required {
@@ -91,8 +99,11 @@ func tableTest(m Modeller) ([]field, string, bool) {
 	return flds, getTableName(m), ok
 }
 
-// Returns a slice of strings with the sql statements and boolean to
+// tableDefinition Returns a slice of strings with the sql statements and boolean to
 // indicate if the table needs to be created
+// @param m
+// @return []string
+// @return bool
 func tableDefinition(m Modeller) ([]string, bool) {
 	sql := make([]string, 0, 3)
 
@@ -142,6 +153,8 @@ func tableDefinition(m Modeller) ([]string, bool) {
 }
 
 // insertCommand returns the sql command to insert the current model into the database
+// @param m
+// @return string
 func insertCommand(m Modeller) string {
 	flds, n, ok := tableTest(m)
 	if !ok {
@@ -182,6 +195,8 @@ func insertCommand(m Modeller) string {
 
 // updateCommand returns the SQL command to update the
 // current model in the database
+// @param m
+// @return string
 func updateCommand(m Modeller) string {
 	flds, n, ok := tableTest(m)
 	if !ok {
@@ -218,6 +233,8 @@ func updateCommand(m Modeller) string {
 }
 
 // deleteCommand returns the SQL command to remove the model from the database
+// @param m
+// @return string
 func deleteCommand(m Modeller) string {
 	_, n, ok := tableTest(m)
 	if !ok {
@@ -228,6 +245,8 @@ func deleteCommand(m Modeller) string {
 }
 
 // refreshCommand returns the SQL query to refresh the data in the model
+// @param m
+// @return string
 func refreshCommand(m Modeller) string {
 	_, n, ok := tableTest(m)
 	if !ok {
@@ -238,6 +257,8 @@ func refreshCommand(m Modeller) string {
 }
 
 // updateLastUpdate updates the LastUpdate field in the model
+// @param m
+// @param date
 func updateLastUpdate(m Modeller, date time.Time) {
 	v := reflect.ValueOf(m)
 	dateValue := reflect.ValueOf(date)

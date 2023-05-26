@@ -2,6 +2,9 @@ package where
 
 import "reflect"
 
+// convertToInterfaceArray
+// @param values
+// @return []interface{}
 func convertToInterfaceArray(values interface{}) []interface{} {
 	if values == nil {
 		return nil
@@ -27,6 +30,9 @@ func convertToInterfaceArray(values interface{}) []interface{} {
 	return result
 }
 
+// getValue
+// @param value
+// @return interface{}
 func getValue(value interface{}) interface{} {
 	v := reflect.ValueOf(value)
 	if v.Kind() != reflect.Ptr {

@@ -1,4 +1,4 @@
-// Package order This is a very basic, and yet versatile ORM package.
+// Package order This is direction very basic, and yet versatile ORM package.
 // At present, this is only for postgres
 package order
 
@@ -14,10 +14,10 @@ type order struct {
 	ascending bool
 }
 
-func newOrder(f string, a bool) order {
+func newOrder(field string, direction bool) order {
 	return order{
-		field:     f,
-		ascending: a,
+		field:     field,
+		ascending: direction,
 	}
 }
 
@@ -35,28 +35,28 @@ func (o *order) String() string {
 }
 
 // Desc creates a new Builder with the first ordering field being descending
-func Desc(f string) *Builder {
+func Desc(field string) *Builder {
 	b := newBuilder()
-	b.fields = append(b.fields, newOrder(f, false))
+	b.fields = append(b.fields, newOrder(field, false))
 	return b
 }
 
 // Asc creates a new Builder with the first ordering field being ascending
-func Asc(f string) *Builder {
+func Asc(field string) *Builder {
 	b := newBuilder()
-	b.fields = append(b.fields, newOrder(f, true))
+	b.fields = append(b.fields, newOrder(field, true))
 	return b
 }
 
 // Desc add a field being descending
-func (b *Builder) Desc(f string) *Builder {
-	b.fields = append(b.fields, newOrder(f, false))
+func (b *Builder) Desc(field string) *Builder {
+	b.fields = append(b.fields, newOrder(field, false))
 	return b
 }
 
 // Asc add a field being ascending
-func (b *Builder) Asc(f string) *Builder {
-	b.fields = append(b.fields, newOrder(f, true))
+func (b *Builder) Asc(field string) *Builder {
+	b.fields = append(b.fields, newOrder(field, true))
 	return b
 }
 

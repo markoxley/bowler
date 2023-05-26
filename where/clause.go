@@ -7,6 +7,7 @@ import (
 	"github.com/markoxley/bowler/utils"
 )
 
+// clause
 type clause struct {
 	conjunction conjunction
 	field       string
@@ -15,6 +16,9 @@ type clause struct {
 	values      []interface{}
 }
 
+// String
+// @receiver c
+// @return string
 func (c clause) String() string {
 	opCode := int(c.op)
 	if c.not {
@@ -62,10 +66,20 @@ func (c clause) String() string {
 	}
 }
 
+// getConjunction
+// @receiver c
+// @return conjunction
 func (c *clause) getConjunction() conjunction {
 	return c.conjunction
 }
 
+// newClause
+// @param c
+// @param f
+// @param o
+// @param n
+// @param v
+// @return *clause
 func newClause(c conjunction, f string, o operator, n bool, v ...interface{}) *clause {
 	return &clause{
 		conjunction: c,

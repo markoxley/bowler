@@ -6,27 +6,27 @@ import (
 	"time"
 )
 
-func MakeValue(v interface{}) (string, bool) {
-	switch v.(type) {
+func MakeValue(value interface{}) (string, bool) {
+	switch value.(type) {
 	case float32:
-		r := fmt.Sprintf("%f", v)
-		return r[:len(r)-2], true
+		result := fmt.Sprintf("%f", value)
+		return result[:len(result)-2], true
 	case float64:
-		return fmt.Sprintf("%f", v), true
+		return fmt.Sprintf("%f", value), true
 	case int, int8, int16, int32, int64:
-		return fmt.Sprintf("%d", v), true
+		return fmt.Sprintf("%d", value), true
 	case bool:
-		if v == true {
+		if value == true {
 			return "1", true
 		}
 		return "0", true
 	case string:
-		if s, ok := v.(string); ok {
-			return fmt.Sprintf("'%s'", strings.ReplaceAll(s, "'", "''")), true
+		if result, ok := value.(string); ok {
+			return fmt.Sprintf("'%s'", strings.ReplaceAll(result, "'", "''")), true
 		}
 	case time.Time:
-		if t, ok := v.(time.Time); ok {
-			return fmt.Sprintf("'%s'", TimeToSQL(t)), true
+		if result, ok := value.(time.Time); ok {
+			return fmt.Sprintf("'%s'", TimeToSQL(result)), true
 		}
 	}
 	return "", false

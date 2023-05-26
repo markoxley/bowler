@@ -7,6 +7,10 @@ type fieldSize struct {
 	decimal int
 }
 
+// newSize
+// @param sz
+// @param dec
+// @return fieldSize
 func newSize(sz, dec int) fieldSize {
 	return fieldSize{
 		size:    sz,
@@ -14,6 +18,9 @@ func newSize(sz, dec int) fieldSize {
 	}
 }
 
+// String
+// @receiver s
+// @return string
 func (s fieldSize) String() string {
 	if s.decimal > 0 {
 		return fmt.Sprintf("%d,%d", s.size, s.decimal)

@@ -48,6 +48,10 @@ var (
 	}
 )
 
+// getDefs
+// @param t
+// @param first
+// @return []field
 func getDefs(t interface{}, first bool) []field {
 	res := make([]field, 0, 10)
 	if first {

@@ -12,6 +12,8 @@ type Criteria struct {
 }
 
 // WhereString returns the where condition in SQL format
+// @receiver c
+// @return string
 func (c Criteria) WhereString() string {
 	if c.Where == nil {
 		return ""
@@ -41,6 +43,8 @@ func (c Criteria) WhereString() string {
 }
 
 // OrderString returns the orderering in SQL format
+// @receiver c
+// @return string
 func (c Criteria) OrderString() string {
 	if c.Order == nil {
 		return ""
@@ -61,6 +65,8 @@ func (c Criteria) OrderString() string {
 }
 
 // LimitString returns the limiter in SQL format
+// @receiver c
+// @return string
 func (c Criteria) LimitString() string {
 	if c.Limit > 0 {
 		return fmt.Sprintf(" LIMIT %d", c.Limit)
@@ -69,6 +75,8 @@ func (c Criteria) LimitString() string {
 }
 
 // OffsetString returns the offset in SQL format
+// @receiver c
+// @return string
 func (c Criteria) OffsetString() string {
 	if c.Offset > 0 {
 		return fmt.Sprintf(" OFFSET %d", c.Offset)
@@ -77,6 +85,8 @@ func (c Criteria) OffsetString() string {
 }
 
 // String returns the full criteria in SQL format
+// @receiver c
+// @return string
 func (c Criteria) String() string {
 	return c.WhereString() + c.OrderString() + c.LimitString() + c.OffsetString()
 }

@@ -31,8 +31,9 @@ func init() {
 	knownTables = make([]string, 0, 20)
 }
 
-// Configfure attempts to configure the database
-// connection and returns error if it fails
+// Configure attempts to configure the database
+// @param c This is the configuration
+// @return error
 func Configure(c *config.Config) error {
 	conf = c
 	db, err := connect()
@@ -44,6 +45,8 @@ func Configure(c *config.Config) error {
 }
 
 // connect attempts to connect to the database
+// @return *sql.DB
+// @return error
 func connect() (*sql.DB, error) {
 	cs := fmt.Sprintf(mySQLConnectionPattern, conf.User, conf.Password, conf.Host, conf.Name)
 	tdb, err := sql.Open("mysql", cs)
@@ -54,6 +57,7 @@ func connect() (*sql.DB, error) {
 }
 
 // disconnect from the database
+// @param db
 func disconnect(db *sql.DB) {
 	if db != nil {
 		db.Close()
@@ -61,11 +65,15 @@ func disconnect(db *sql.DB) {
 }
 
 // beginTransaction begins the transaction process
+// @param db
+// @return *sql.Tx
+// @return error
 func beginTransaction(db *sql.DB) (*sql.Tx, error) {
 	return db.Begin()
 }
 
 // commitTransaction commites the transaction to the database
+// @param tx
 func commitTransaction(tx *sql.Tx) {
 	if tx != nil {
 		tx.Commit()
@@ -74,6 +82,9 @@ func commitTransaction(tx *sql.Tx) {
 
 // selectScalar atempts to execute the specified query and returns
 // the value of the first column of the first row
+// @param q
+// @return interface{}
+// @return bool
 func selectScalar(q string) (interface{}, bool) {
 	db, err := connect()
 	if err != nil {
@@ -105,6 +116,9 @@ func selectScalar(q string) (interface{}, bool) {
 
 // selectQuery attempts to execute the query passed, returning
 // a slice of the type specified by the type parameter
+// @param q
+// @return []*T
+// @return bool
 func selectQuery[T Modeller](q string) ([]*T, bool) {
 	db, err := connect()
 	if err != nil {
@@ -128,6 +142,9 @@ func selectQuery[T Modeller](q string) ([]*T, bool) {
 
 // populateModel creates a new slice of models of the type
 // specified by the type parameter and populates the fields from the sql query
+// @param r
+// @return []*T
+// @return bool
 func populateModel[T Modeller](r *sql.Rows) ([]*T, bool) {
 	res := make([]*T, 0, 100)
 	ok := true
@@ -273,6 +290,11 @@ func populateModel[T Modeller](r *sql.Rows) ([]*T, bool) {
 }
 
 // updateModel updates the date fields of the specified model
+// @param m
+// @param id
+// @param createdate
+// @param updatedate
+// @param deletedate
 func updateModel(m Modeller, id string, createdate time.Time, updatedate time.Time, deletedate *time.Time) {
 	v := reflect.ValueOf(m)
 	createdateValue := reflect.ValueOf(createdate)
@@ -288,6 +310,8 @@ func updateModel(m Modeller, id string, createdate time.Time, updatedate time.Ti
 }
 
 // executeQuery attempts to execute the passed sql query
+// @param q
+// @return bool
 func executeQuery(q string) bool {
 	db, err := connect()
 	if err != nil {
@@ -310,6 +334,8 @@ func executeQuery(q string) bool {
 }
 
 // tableExists tests for the existence of the specified table
+// @param t
+// @return bool
 func tableExists(t string) bool {
 	for _, tn := range knownTables {
 		if tn == t {
@@ -325,18 +351,25 @@ func tableExists(t string) bool {
 
 // RawExecute executes a sql statement on the database, without returning a value
 // Not recommended for general use - can break shadowing
+// @param sql
+// @return bool
 func RawExecute(sql string) bool {
 	return executeQuery(sql)
 }
 
 // RawScalar exeutes a raw sql statement that returns a single value
 // Not recommended for general use
+// @param sql
+// @return interface{}
+// @return bool
 func RawScalar(sql string) (interface{}, bool) {
 	return selectScalar(sql)
 }
 
 // RawSelect executes a raw sql statement on the database
 // Not recommended for general use
+// @param sql
+// @return []map
 func RawSelect(sql string) []map[string]interface{} {
 	db, err := connect()
 	if err != nil {
@@ -372,6 +405,9 @@ func RawSelect(sql string) []map[string]interface{} {
 }
 
 // getCriteria returns the criteria for a query in SQL format
+// @param criteria
+// @return *Criteria
+// @return error
 func getCriteria(criteria []interface{}) (*Criteria, error) {
 	for _, cr := range criteria {
 		if cr == nil {
@@ -394,6 +430,9 @@ func getCriteria(criteria []interface{}) (*Criteria, error) {
 
 // Fetch populates the slice with models from the database that match the criteria.
 // Returns an error if this fails
+// @param criteria
+// @return []*T
+// @return error
 func Fetch[T Modeller](criteria ...interface{}) ([]*T, error) {
 	c, err := getCriteria(criteria)
 	if err != nil {
@@ -416,6 +455,9 @@ func Fetch[T Modeller](criteria ...interface{}) ([]*T, error) {
 }
 
 // First returns the first model that matches the criteria
+// @param criteria
+// @return *T
+// @return error
 func First[T Modeller](criteria ...interface{}) (*T, error) {
 	c, err := getCriteria(criteria)
 	if err != nil {
@@ -435,6 +477,8 @@ func First[T Modeller](criteria ...interface{}) (*T, error) {
 }
 
 // Count returns the number of rows in the database that match the criteria
+// @param criteria
+// @return int
 func Count[T Modeller](criteria ...interface{}) int {
 	c, err := getCriteria(criteria)
 	if err != nil {
@@ -461,6 +505,8 @@ func Count[T Modeller](criteria ...interface{}) int {
 // Save stores the model in the database.
 // Depending on the status of the model, this is either
 // an update or an insert command
+// @param m
+// @return bool
 func Save(m Modeller) bool {
 	if m.IsNew() {
 		return executeQuery(insertCommand(m))
@@ -469,6 +515,8 @@ func Save(m Modeller) bool {
 }
 
 // Remove removes the passed model from the database
+// @param m
+// @return bool
 func Remove(m Modeller) bool {
 	if m.GetID() == nil {
 		return true
@@ -481,6 +529,9 @@ func Remove(m Modeller) bool {
 }
 
 // RemoveMany removes all models of the specified type that match the criteria
+// @param c
+// @return int
+// @return bool
 func RemoveMany[T Modeller](c *Criteria) (int, bool) {
 	t := getTableName(*new(T))
 	if !tableExists(t) {
