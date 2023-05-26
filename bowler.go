@@ -16,7 +16,7 @@ import (
 const (
 	majorVersion   = 1
 	minorVersion   = 0
-	releaseVersion = 1
+	releaseVersion = 0
 )
 
 type fieldMap struct {
