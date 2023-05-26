@@ -13,6 +13,12 @@ import (
 	"github.com/markoxley/bowler/utils"
 )
 
+const (
+	majorVersion   = 1
+	minorVersion   = 0
+	releaseVersion = 1
+)
+
 type fieldMap struct {
 	name      string
 	fieldType string
@@ -561,4 +567,8 @@ func RemoveMany[T Modeller](c *Criteria) (int, bool) {
 	}
 	ok := executeQuery(s)
 	return r, ok
+}
+
+func Version() string {
+	return fmt.Sprintf("Batty Bowler v%d.%d.%d ©2023 I Have a Hat", majorVersion, minorVersion, releaseVersion)
 }
